@@ -13,7 +13,7 @@ require('../index.js')(Errors);
 
 describe('SuperErrors', function(){
     describe('json()', function(){
-        it('should return a client-safe JSON serializable object if json_object is true', function(){
+        it('should return a client-safe JSON string by default', function(){
             expect(JSON.parse(Errors.json({ message:'hi' }))).to.deep.equal({"message":"There was an error.","name":"UnknownError","status_code":500});
             expect(JSON.parse(Errors.json({ name:'NotifyUser', client_safe_message:'Bad stuff happened...', stack:'unsafe...', status_code:400 }))).to.deep.equal({"message":"Bad stuff happened...","name":"NotifyUser","status_code":400});
         });
