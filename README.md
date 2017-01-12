@@ -31,6 +31,7 @@ The `map` argument can be used to map where fields go and defaults to:
     "name": 'name',
     "status_code": 'status_code'
 }
+```
 
 This map will give you the name, field, status_code and client_safe_message of the error. All additional errors get converted to strings and placed in an array and fields become an object of fields.
 
