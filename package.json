@@ -1,0 +1,38 @@
+{
+  "name": "super-errors-json",
+  "version": "1.0.0",
+  "description": "Convert a SuperError instance into JSON notation safe for clients.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha",
+    "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- -u exports -R spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TyphosLabs/super-errors-json.git"
+  },
+  "keywords": [
+    "SuperErrors",
+    "json",
+    "error",
+    "handling"
+  ],
+  "author": "Joshua Sullivan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TyphosLabs/super-errors-json/issues"
+  },
+  "homepage": "https://github.com/TyphosLabs/super-errors-json#readme",
+  "dependencies": {
+    "super-errors": "^2.0.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "dirty-chai": "^1.2.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0"
+  }
+}
