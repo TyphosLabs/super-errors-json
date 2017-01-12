@@ -13,27 +13,32 @@ require('../index.js')(Errors);
 
 describe('SuperErrors', function(){
     describe('json()', function(){
-        it('should return a client-safe JSON serializable object by default', function(){
-            expect(Errors.json({ message:'hi' })).to.deep.equal({ message:'There was an error.', name:'UnknownError', status_code:500 });
-            expect(Errors.json({ name:'NotifyUser', client_safe_message:'Bad stuff happened...', stack:'unsafe...', status_code:400 })).to.deep.equal({ name:'NotifyUser', message:'Bad stuff happened...', status_code:400 });
+        it('should return a client-safe JSON serializable object if json_object is true', function(){
+            expect(JSON.parse(Errors.json({ message:'hi' }))).to.deep.equal({"message":"There was an error.","name":"UnknownError","status_code":500});
+            expect(JSON.parse(Errors.json({ name:'NotifyUser', client_safe_message:'Bad stuff happened...', stack:'unsafe...', status_code:400 }))).to.deep.equal({"message":"Bad stuff happened...","name":"NotifyUser","status_code":400});
+        });
+        
+        it('should return a client-safe JSON serializable object if json_object is true', function(){
+            expect(Errors.json({ message:'hi' }, true)).to.deep.equal({ message:'There was an error.', name:'UnknownError', status_code:500 });
+            expect(Errors.json({ name:'NotifyUser', client_safe_message:'Bad stuff happened...', stack:'unsafe...', status_code:400 }, true)).to.deep.equal({ name:'NotifyUser', message:'Bad stuff happened...', status_code:400 });
         });
         
         it('should handle primative types', function(){
             var default_json = { message:'There was an error.', name:'UnknownError', status_code:500 };
-            expect(Errors.json(true)).to.deep.equal(default_json);
-            expect(Errors.json(false)).to.deep.equal(default_json);
-            expect(Errors.json('')).to.deep.equal(default_json);
-            expect(Errors.json({})).to.deep.equal(default_json);
-            expect(Errors.json([])).to.deep.equal(default_json);
-            expect(Errors.json([[]])).to.deep.equal(default_json);
-            expect(Errors.json([{}])).to.deep.equal(default_json);
-            expect(Errors.json([{}, {}])).to.deep.equal({
+            expect(Errors.json(true, true)).to.deep.equal(default_json);
+            expect(Errors.json(false, true)).to.deep.equal(default_json);
+            expect(Errors.json('', true)).to.deep.equal(default_json);
+            expect(Errors.json({}, true)).to.deep.equal(default_json);
+            expect(Errors.json([], true)).to.deep.equal(default_json);
+            expect(Errors.json([[]], true)).to.deep.equal(default_json);
+            expect(Errors.json([{}], true)).to.deep.equal(default_json);
+            expect(Errors.json([{}, {}], true)).to.deep.equal({
                 errors:["There was an error."],
                 message:'There was an error.',
                 name:'UnknownError',
                 status_code:500
             });
-            expect(Errors.json(function(){ return 'hi'; })).to.deep.equal(default_json);
+            expect(Errors.json(function(){ return 'hi'; }, true)).to.deep.equal(default_json);
         });
         
         it('should handle all the values', function(){
@@ -57,7 +62,7 @@ describe('SuperErrors', function(){
             Errors.add(err, addl);
             Errors.add(err, 'field', field);
             
-            expect(Errors.json(err)).to.deep.equal({
+            expect(Errors.json(err, true)).to.deep.equal({
                 errors: [
                     "additional error",
                     "additional additional error"
@@ -96,7 +101,7 @@ describe('SuperErrors', function(){
             Errors.add(err, addl);
             Errors.add(err, 'field', field);
             
-            expect(Errors.json(err, 'all')).to.deep.equal({
+            expect(Errors.json(err, true, 'all')).to.deep.equal({
                 client_safe_message: "test error",
                 errors: [
                     {
@@ -166,7 +171,7 @@ describe('SuperErrors', function(){
         });
         
         it('should not include errors if errors is an empty array', function(){
-            expect(Errors.json({ errors:[] })).to.deep.equal({
+            expect(Errors.json({ errors:[] }, true)).to.deep.equal({
                 message: "There was an error.",
                 name: "UnknownError",
                 status_code: 500
@@ -174,7 +179,7 @@ describe('SuperErrors', function(){
         });
         
         it('should work with a from subfield map', function(){
-            expect(Errors.json({ from:{ message:'test' } }, { "from.message":'error_from' })).to.deep.equal({
+            expect(Errors.json({ from:{ message:'test' } }, true, { "from.message":'error_from' })).to.deep.equal({
                 error_from: 'test'
             });
         });
@@ -186,6 +191,7 @@ describe('SuperErrors', function(){
                     errors: [{ message:'test2' }],
                     fields: { test: { message:'test3' } }
                 },
+                true,
                 'all',
                 {
                     client_safe_message:true,
@@ -203,6 +209,22 @@ describe('SuperErrors', function(){
                 },
                 message: 'There was an error.',
                 name: 'UnknownError'
+            });
+        });
+        
+        it('example 1', function(){
+            expect(Errors.json(new Errors.NotifyUser('Test...'), true)).to.deep.equal({
+                name: "NotifyUser",
+                message: "Test...",
+                status_code: 500
+            });
+        });
+        
+        it('example 1', function(){
+            expect(Errors.json(new Errors.NotifyUser('Test...'), true)).to.deep.equal({
+                name: "NotifyUser",
+                message: "Test...",
+                status_code: 500
             });
         });
     });

@@ -10,14 +10,21 @@ function exportFn(SuperErrors){
 /**
  * Map the error to a json stringifiable object. By default, use the `client_safe_message` as the message.
  * @param {Error} err - The error to convert to json
- * @param {Object} map - How to map the error values
- * @param {Object} exclude - Error properties to always exclude
+ * @param {boolean} [json_object=false] - Return a JSON-serializable object instead of a JSON string
+ * @param {Object} [map] - How to map the error values
+ * @param {Object} [exclude] - Error properties to always exclude
  * @returns {Object}
  */
-function errorToJSON(err, map, exclude){
+function errorToJSON(err, json_object, map, exclude){
     /* jshint validthis:true */
     var json = {};
     var mapped, i, a, submap, subfield;
+    
+    if(typeof json_object !== "boolean"){
+        exclude = map;
+        map = json_object;
+        json_object = false;
+    }
     
     if(!exclude || typeof exclude !== 'object'){
         exclude = {};
@@ -98,9 +105,9 @@ function errorToJSON(err, map, exclude){
                     if(subfield){
                         submap = {};
                         submap[subfield] = subfield;
-                        json[mapped] = this.json(err.from, submap)[subfield];    
+                        json[mapped] = this.json(err.from, true, submap)[subfield];    
                     } else {
-                        json[mapped] = this.json(err.from, map, merge(exclude, ('from' in exclude ? exclude.from : { fields:true, errors:true, status_code:true })));
+                        json[mapped] = this.json(err.from, true, map, merge(exclude, ('from' in exclude ? exclude.from : { fields:true, errors:true, status_code:true })));
                     }
                     break;
                 case 'errors':
@@ -112,9 +119,9 @@ function errorToJSON(err, map, exclude){
                         a = [];
                         for(i = 0; i < err.errors.length; i++){
                             if(subfield){
-                                a[i] = this.json(err.errors[i], submap)[subfield];  
+                                a[i] = this.json(err.errors[i], true, submap)[subfield];  
                             } else {
-                                a[i] = this.json(err.errors[i], map, merge(exclude, ('errors' in exclude ? exclude.errors : { fields:true, errors:true, status_code:true })));
+                                a[i] = this.json(err.errors[i], true, map, merge(exclude, ('errors' in exclude ? exclude.errors : { fields:true, errors:true, status_code:true })));
                             }
                         }
                         json[mapped] = a;
@@ -128,9 +135,9 @@ function errorToJSON(err, map, exclude){
                     a = {};
                     for(i in err.fields){
                         if(subfield){
-                            a[i] = this.json(err.fields[i], submap)[subfield];  
+                            a[i] = this.json(err.fields[i], true, submap)[subfield];  
                         } else {
-                            a[i] = this.json(err.fields[i], map, merge(exclude, ('fields' in exclude ? exclude.fields : { fields:true, status_code:true })));
+                            a[i] = this.json(err.fields[i], true, map, merge(exclude, ('fields' in exclude ? exclude.fields : { fields:true, status_code:true })));
                         }
                     }
                     json[mapped] = a;
@@ -153,7 +160,7 @@ function errorToJSON(err, map, exclude){
             }
         }
     }
-    return json;
+    return (json_object ? json : JSON.stringify(json));
 }
 
 /**
